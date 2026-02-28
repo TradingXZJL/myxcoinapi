@@ -179,6 +179,10 @@ type WsSubscribeArg struct {
 	Stream       string `json:"stream"`
 	BusinessType string `json:"businessType"`
 	Symbol       string `json:"symbol"`
+
+	// 有限档深度快照频道
+	Levels string `json:"levels,omitempty"`
+	Group  string `json:"group,omitempty"`
 }
 
 // 登陆及订阅返回结果
@@ -326,7 +330,7 @@ func (ws *WsStreamClient) sendWsCloseToAllSub() {
 	ws.sendUnSubscribeSuccessToCloseChan(args)
 }
 
-func (ws *WsStreamClient) CloseConn() error {
+func (ws *WsStreamClient) Close() error {
 	ws.isClose = true
 	ws.connId = ""
 
@@ -771,7 +775,6 @@ func (ws *WsStreamClient) handleResult(resultChan chan []byte, errChan chan erro
 					}
 					arg := (*d)[0].WsSubscribeArg
 					keyData, _ := json.Marshal(arg)
-					log.Warnf("keyData: %s", string(keyData))
 					if sub, ok := ws.depthLevelsSubMap.Load(string(keyData)); ok {
 						if err != nil {
 							sub.errChan <- err
@@ -866,10 +869,6 @@ func (ws *WsStreamClient) handleResult(resultChan chan []byte, errChan chan erro
 				//tradingAccount订阅结果处理
 				if strings.Contains(string(data), "trading_account") {
 					t, err := handleWsTradingAccount(data)
-					if err != nil {
-						log.Error(err)
-						continue
-					}
 					if len(*t) == 0 {
 						log.Warnf("tradingAccount is empty, skip")
 						continue

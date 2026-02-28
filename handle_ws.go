@@ -82,11 +82,13 @@ type WsDepth struct {
 	Bids         []Books `json:"bids"`
 	PreUpdateId  string  `json:"preUpdateId"`
 	LastUpdateId string  `json:"lastUpdateId"`
+	Ts           int64   `json:"ts"`
 }
 
 type WsDepthMiddle struct {
 	WsSubscribeArg
 	Data []Depth `json:"data"`
+	Ts   int64   `json:"ts"`
 }
 
 func handleWsDepth(data []byte) (*[]WsDepth, error) {
@@ -119,6 +121,7 @@ func handleWsDepth(data []byte) (*[]WsDepth, error) {
 			Bids:           bids,
 			PreUpdateId:    depth.PreUpdateId,
 			LastUpdateId:   depth.LastUpdateId,
+			Ts:             wsDepthMiddle.Ts,
 		})
 	}
 
@@ -140,11 +143,13 @@ type WsDepthLevels struct {
 	Bids         []Books `json:"bids"`
 	LastUpdateId string  `json:"lastUpdateId"`
 	Group        string  `json:"group"`
+	Ts           int64   `json:"ts"`
 }
 
 type WsDepthLevelsMiddle struct {
 	WsSubscribeArg
 	Data []DepthLevels `json:"data"`
+	Ts   int64         `json:"ts"`
 }
 
 func handleWsDepthLevels(data []byte) (*[]WsDepthLevels, error) {
@@ -188,6 +193,7 @@ func handleWsDepthLevels(data []byte) (*[]WsDepthLevels, error) {
 			Bids:           bids,
 			LastUpdateId:   depthLevels.LastUpdateId,
 			Group:          depthLevels.Group,
+			Ts:             wsDepthLevelsMiddle.Ts,
 		})
 	}
 	return &wsDepthLevels, nil
